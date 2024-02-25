@@ -30,12 +30,17 @@ func AgeEncrypt(publicKey string, data string) (string, error) {
 	return encrypted, nil
 }
 
-func AgeDecrypt(privateKey string, data string) (string, error) {
-	decoded, dErr := base64.StdEncoding.DecodeString(data)
-	if dErr != nil {
-		return "", dErr
+func decodeData(data string) string {
+	decoded, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return data
 	}
-	rdr := bytes.NewBuffer(decoded)
+	return decodeData(string(decoded))
+}
+
+func AgeDecrypt(privateKey string, data string) (string, error) {
+	decoded := decodeData(data)
+	rdr := bytes.NewBuffer([]byte(decoded))
 
 	identity, err := age.ParseX25519Identity(privateKey)
 	if err != nil {
